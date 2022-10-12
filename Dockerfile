@@ -37,8 +37,7 @@ USER ContainerAdministrator
 RUN setx PATH "%PATH%;C:\Program Files\Wix3" /m \
     && setx WIX_TOOL_PATH "C:\Program Files\Wix3" /m
 
-RUN \
-    curl -SL --output vs_buildtools.exe https://aka.ms/vs/17/release/vs_buildtools.exe \
+RUN curl -SL --output vs_buildtools.exe https://aka.ms/vs/17/release/vs_buildtools.exe \
     \
     && (start /w vs_buildtools.exe --quiet --wait --norestart --nocache \
     --installPath "%ProgramFiles(x86)%\Microsoft Visual Studio\2022\BuildTools" \
@@ -50,6 +49,9 @@ RUN \
     || IF "%ERRORLEVEL%"=="3010" EXIT 0) \
     \
     && del /q vs_buildtools.exe
+
+RUN mkdir C:\App
+WORKDIR C:\\App
 
 USER ContainerUser
 
