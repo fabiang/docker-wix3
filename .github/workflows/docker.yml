@@ -1,0 +1,126 @@
+name: Docker Image
+
+on: [push, pull_request]
+
+jobs:
+  docker-image-windows:
+    strategy:
+      matrix:
+        windows:
+          - base_image: servercore
+            base_version: ltsc2019
+            powershell_base_version: 1809
+            runs_on: 2019
+          - base_image: servercore
+            base_version: ltsc2022
+            powershell_base_version: ltsc2022
+            runs_on: 2022
+        wix:
+          - version: "3.11.2"
+            version_minor: "3.11"
+            version_major: "3"
+            download_url: "https://github.com/wixtoolset/wix3/releases/download/wix3112rtm/wix311-binaries.zip"
+            download_hash: "2c1888d5d1dba377fc7fa14444cf556963747ff9a0a289a3599cf09da03b9e2e"
+          - version: "3.11.1"
+            version_minor: ""
+            version_major: ""
+            download_url: "https://github.com/wixtoolset/wix3/releases/download/wix3111rtm/wix311-binaries.zip"
+            download_hash: "37f0a533b0978a454efb5dc3bd3598becf9660aaf4287e55bf68ca6b527d051d"
+          - version: "3.10.4"
+            version_minor: "3.10"
+            version_major: ""
+            download_url: "https://github.com/wixtoolset/wix3/releases/download/wix3104rtm/wix310-binaries.zip"
+            download_hash: "8333d752027bb903c33d881e3a3e7f3338a9e6c436a96dbc20e71356d5e154e9"
+
+    env:
+      IMAGE_NAME_FULL: "fabiang/wix3:${{ matrix.wix.version }}-windows${{ matrix.windows.base_image }}-${{ matrix.windows.base_version }}"
+      IMAGE_NAME_MINOR: "fabiang/wix3:${{ matrix.wix.version_minor }}-windows${{ matrix.windows.base_image }}-${{ matrix.windows.base_version }}"
+      IMAGE_NAME_MAJOR: "fabiang/wix3:${{ matrix.wix.version_major }}-windows${{ matrix.windows.base_image }}-${{ matrix.windows.base_version }}"
+
+    runs-on: windows-${{ matrix.windows.runs_on }}
+
+    name: "Windows container version ${{ matrix.wix.version }} on ${{ matrix.windows.base_image }} (${{ matrix.windows.base_version }})"
+
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Build Image (Major+Minor)
+        if: "${{ matrix.wix.version_minor != '' && matrix.wix.version_major != '' }}"
+        run: |
+          docker build -f Dockerfile `
+            -t '${{ env.IMAGE_NAME_FULL }}' `
+            -t '${{ env.IMAGE_NAME_MINOR }}' `
+            -t '${{ env.IMAGE_NAME_MAJOR }}' `
+            `
+            '--build-arg=WIX_DOWNLOAD_URL=${{ matrix.wix.download_url }}' `
+            '--build-arg=WIX_DOWNLOAD_HASH_SHA256=${{ matrix.wix.download_hash }}' `
+            `
+            '--build-arg=BASE_IMAGE_PWSH_VERSION=${{ matrix.windows.powershell_base_version }}' `
+            '--build-arg=BASE_IMAGE=${{ matrix.windows.base_image }}' `
+            '--build-arg=BASE_IMAGE_VERSION=${{ matrix.windows.base_version }}' `
+            .
+
+      - name: Build Image (Minor)
+        if: "${{ matrix.wix.version_minor != '' && matrix.wix.version_major == '' }}"
+        run: |
+          docker build -f Dockerfile `
+            -t '${{ env.IMAGE_NAME_FULL }}' `
+            -t '${{ env.IMAGE_NAME_MINOR }}' `
+            `
+            '--build-arg=WIX_DOWNLOAD_URL=${{ matrix.wix.download_url }}' `
+            '--build-arg=WIX_DOWNLOAD_HASH_SHA256=${{ matrix.wix.download_hash }}' `
+            `
+            '--build-arg=BASE_IMAGE_PWSH_VERSION=${{ matrix.windows.powershell_base_version }}' `
+            '--build-arg=BASE_IMAGE=${{ matrix.windows.base_image }}' `
+            '--build-arg=BASE_IMAGE_VERSION=${{ matrix.windows.base_version }}' `
+            .
+
+      - name: Build Image
+        if: "${{ matrix.wix.version_minor == '' && matrix.wix.version_major == '' }}"
+        run: |
+          docker build -f Dockerfile `
+            -t '${{ env.IMAGE_NAME_FULL }}' `
+            `
+            '--build-arg=WIX_DOWNLOAD_URL=${{ matrix.wix.download_url }}' `
+            '--build-arg=WIX_DOWNLOAD_HASH_SHA256=${{ matrix.wix.download_hash }}' `
+            `
+            '--build-arg=BASE_IMAGE_PWSH_VERSION=${{ matrix.windows.powershell_base_version }}' `
+            '--build-arg=BASE_IMAGE=${{ matrix.windows.base_image }}' `
+            '--build-arg=BASE_IMAGE_VERSION=${{ matrix.windows.base_version }}' `
+            .
+
+      - name: Test image
+        run: |
+          docker run -t --rm --entrypoint='' `
+            '${{ env.IMAGE_NAME_FULL }}' `
+            powershell /?
+          docker run -t --rm --entrypoint='' `
+            '${{ env.IMAGE_NAME_FULL }}' `
+            msbuild -version
+          docker run -t --rm --entrypoint='' `
+            '${{ env.IMAGE_NAME_FULL }}' `
+            melt -?
+
+      - name: Docker Hub login
+        uses: azure/docker-login@v1
+        with:
+          username: ${{ secrets.CONTAINER_REGISTRY_USERNAME }}
+          password: ${{ secrets.CONTAINER_REGISTRY_PASSWORD }}
+
+      - name: Push Image (Major+Minor)
+        if: "${{ matrix.wix.version_minor != '' && matrix.wix.version_major != '' }}"
+        run: |
+          docker push '${{ env.IMAGE_NAME_FULL }}'
+          docker push '${{ env.IMAGE_NAME_MINOR }}'
+          docker push '${{ env.IMAGE_NAME_MAJOR }}'
+
+      - name: Push Image (Minor)
+        if: "${{ matrix.wix.version_minor != '' && matrix.wix.version_major == '' }}"
+        run: |
+          docker push '${{ env.IMAGE_NAME_FULL }}'
+          docker push '${{ env.IMAGE_NAME_MINOR }}'
+
+      - name: Push Image
+        if: "${{ matrix.wix.version_minor == '' && matrix.wix.version_major == '' }}"
+        run: |
+          docker push '${{ env.IMAGE_NAME_FULL }}'
