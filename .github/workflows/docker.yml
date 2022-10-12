@@ -44,6 +44,9 @@ jobs:
     steps:
       - uses: actions/checkout@v1
 
+      - uses: satackey/action-docker-layer-caching@v0.0.11
+        continue-on-error: true
+
       - name: Build Image (Major+Minor)
         if: "${{ matrix.wix.version_minor != '' && matrix.wix.version_major != '' }}"
         run: |
@@ -102,25 +105,26 @@ jobs:
             melt -?
 
       - name: Docker Hub login
+        if: "${{ github.ref == 'refs/heads/main' }}"
         uses: azure/docker-login@v1
         with:
           username: ${{ secrets.CONTAINER_REGISTRY_USERNAME }}
           password: ${{ secrets.CONTAINER_REGISTRY_PASSWORD }}
 
       - name: Push Image (Major+Minor)
-        if: "${{ matrix.wix.version_minor != '' && matrix.wix.version_major != '' }}"
+        if: "${{ matrix.wix.version_minor != '' && matrix.wix.version_major != '' && github.ref == 'refs/heads/main' }}"
         run: |
           docker push '${{ env.IMAGE_NAME_FULL }}'
           docker push '${{ env.IMAGE_NAME_MINOR }}'
           docker push '${{ env.IMAGE_NAME_MAJOR }}'
 
       - name: Push Image (Minor)
-        if: "${{ matrix.wix.version_minor != '' && matrix.wix.version_major == '' }}"
+        if: "${{ matrix.wix.version_minor != '' && matrix.wix.version_major == '' && github.ref == 'refs/heads/main' }}"
         run: |
           docker push '${{ env.IMAGE_NAME_FULL }}'
           docker push '${{ env.IMAGE_NAME_MINOR }}'
 
       - name: Push Image
-        if: "${{ matrix.wix.version_minor == '' && matrix.wix.version_major == '' }}"
+        if: "${{ matrix.wix.version_minor == '' && matrix.wix.version_major == '' && github.ref == 'refs/heads/main' }}"
         run: |
           docker push '${{ env.IMAGE_NAME_FULL }}'
