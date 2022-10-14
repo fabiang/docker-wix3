@@ -43,7 +43,7 @@ jobs:
 
     runs-on: windows-${{ matrix.windows.runs_on }}
 
-    name: "Windows container version ${{ matrix.wix.version }} on ${{ matrix.windows.base_image }} (${{ matrix.windows.base_version }})"
+    name: "Win v${{ matrix.wix.version }} on ${{ matrix.windows.base_image }} (${{ matrix.windows.base_version }})"
 
     steps:
       - uses: actions/checkout@v1
@@ -51,39 +51,7 @@ jobs:
       - uses: satackey/action-docker-layer-caching@v0.0.11
         continue-on-error: true
 
-      - name: Build Image (Major+Minor)
-        if: "${{ matrix.wix.version_minor != '' && matrix.wix.version_major != '' }}"
-        run: |
-          docker build -f Dockerfile `
-            -t '${{ env.IMAGE_NAME_FULL }}' `
-            -t '${{ env.IMAGE_NAME_MINOR }}' `
-            -t '${{ env.IMAGE_NAME_MAJOR }}' `
-            `
-            '--build-arg=WIX_DOWNLOAD_URL=${{ matrix.wix.download_url }}' `
-            '--build-arg=WIX_DOWNLOAD_HASH_SHA256=${{ matrix.wix.download_hash }}' `
-            `
-            '--build-arg=BASE_IMAGE_PWSH_VERSION=${{ matrix.windows.powershell_base_version }}' `
-            '--build-arg=BASE_IMAGE=${{ matrix.windows.base_image }}' `
-            '--build-arg=BASE_IMAGE_VERSION=${{ matrix.windows.base_version }}' `
-            .
-
-      - name: Build Image (Minor)
-        if: "${{ matrix.wix.version_minor != '' && matrix.wix.version_major == '' }}"
-        run: |
-          docker build -f Dockerfile `
-            -t '${{ env.IMAGE_NAME_FULL }}' `
-            -t '${{ env.IMAGE_NAME_MINOR }}' `
-            `
-            '--build-arg=WIX_DOWNLOAD_URL=${{ matrix.wix.download_url }}' `
-            '--build-arg=WIX_DOWNLOAD_HASH_SHA256=${{ matrix.wix.download_hash }}' `
-            `
-            '--build-arg=BASE_IMAGE_PWSH_VERSION=${{ matrix.windows.powershell_base_version }}' `
-            '--build-arg=BASE_IMAGE=${{ matrix.windows.base_image }}' `
-            '--build-arg=BASE_IMAGE_VERSION=${{ matrix.windows.base_version }}' `
-            .
-
       - name: Build Image
-        if: "${{ matrix.wix.version_minor == '' && matrix.wix.version_major == '' }}"
         run: |
           docker build -f Dockerfile `
             -t '${{ env.IMAGE_NAME_FULL }}' `
@@ -95,6 +63,14 @@ jobs:
             '--build-arg=BASE_IMAGE=${{ matrix.windows.base_image }}' `
             '--build-arg=BASE_IMAGE_VERSION=${{ matrix.windows.base_version }}' `
             .
+
+      - name: Tag Minor
+        if: "${{ matrix.wix.version_minor != '' }}"
+        run: docker tag '${{ env.IMAGE_NAME_FULL }}' '${{ env.IMAGE_NAME_MINOR }}'
+
+      - name: Tag Major
+        if: "${{ matrix.wix.version_major != '' }}"
+        run: docker tag '${{ env.IMAGE_NAME_FULL }}' '${{ env.IMAGE_NAME_MAJOR }}'
 
       - name: Test image
         run: |
@@ -115,20 +91,19 @@ jobs:
           username: ${{ secrets.CONTAINER_REGISTRY_USERNAME }}
           password: ${{ secrets.CONTAINER_REGISTRY_PASSWORD }}
 
-      - name: Push Image (Major+Minor)
-        if: "${{ matrix.wix.version_minor != '' && matrix.wix.version_major != '' && github.ref == 'refs/heads/main' }}"
-        run: |
-          docker push '${{ env.IMAGE_NAME_FULL }}'
-          docker push '${{ env.IMAGE_NAME_MINOR }}'
-          docker push '${{ env.IMAGE_NAME_MAJOR }}'
-
-      - name: Push Image (Minor)
-        if: "${{ matrix.wix.version_minor != '' && matrix.wix.version_major == '' && github.ref == 'refs/heads/main' }}"
-        run: |
-          docker push '${{ env.IMAGE_NAME_FULL }}'
-          docker push '${{ env.IMAGE_NAME_MINOR }}'
-
       - name: Push Image
-        if: "${{ matrix.wix.version_minor == '' && matrix.wix.version_major == '' && github.ref == 'refs/heads/main' }}"
+        if: "${{ github.ref == 'refs/heads/main' }}"
         run: |
           docker push '${{ env.IMAGE_NAME_FULL }}'
+          
+      - name: Push Image Minor
+        if: "${{ matrix.wix.version_minor != '' && github.ref == 'refs/heads/main' }}"
+        run: |
+          docker push '${{ env.IMAGE_NAME_MINOR }}'
+
+      - name: Push Image Major
+        if: "${{ matrix.wix.version_major != '' && github.ref == 'refs/heads/main' }}"
+        run: |
+          docker push '${{ env.IMAGE_NAME_MOJOR }}'
+
+

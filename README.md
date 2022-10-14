@@ -1,12 +1,13 @@
-# fabiang/wix3 — Wix Toolset Docker Image
+# fabiang/wix3 — Wix Toolset Docker Image (Windows Container)
 
 > THE MOST POWERFUL SET OF TOOLS AVAILABLE TO CREATE YOUR WINDOWS INSTALLATION EXPERIENCE.
 
-… [as an Docker image](https://github.com/fabiang/docker-wix3).
+… [as an Docker image](https://github.com/fabiang/docker-wix3) for Windows machines.
 
 ## Available images
 
-### ltsc2022
+### Windows
+#### ltsc2022
 ```
 3.x (tags: 3-windowsservercore-ltsc2022)
 3.11 (tags: 3.11-windowsservercore-ltsc2022)
@@ -15,7 +16,7 @@
 3.10.x (tags: 3.10.4-windowsservercore-ltsc2022)
 ```
 
-### ltsc2019
+#### ltsc2019
 ```
 3.x (tags: 3-windowsservercore-ltsc2019)
 3.11 (tags: 3.11-windowsservercore-ltsc2019)
@@ -30,9 +31,14 @@ Powershell:
 
 ```
 docker run -it --rm `
-    -v "./:C:\app" `
+    -v "C:\Users\myuser\Documents\Projects\MyProject:C:\app" `
     fabiang/docker-wix3:3-windowsservercore-ltsc2022 `
-    msbuild ...
+    candle.exe -dProductVersion=${productVersion} -dSomeParam=Foobar .\\MyProject.wxs -arch x64
+
+docker run -it --rm `
+    -v "C:\Users\myuser\Documents\Projects\MyProject:C:\app" `
+    fabiang/docker-wix3:3-windowsservercore-ltsc2022 `
+    light.exe -sval .\\MyProject.wixobj'
 ```
 
 ## LICENSE
