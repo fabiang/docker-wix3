@@ -15,7 +15,7 @@
 3.10.x (tags: 3.10.4-windowsservercore-ltsc2022)
 ```
 
-## ltsc2019
+### ltsc2019
 ```
 3.x (tags: 3-windowsservercore-ltsc2019)
 3.11 (tags: 3.11-windowsservercore-ltsc2019)

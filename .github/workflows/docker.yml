@@ -1,6 +1,10 @@
 name: Docker Image
 
-on: [push, pull_request]
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: "0 12 1-7 * 2"
 
 jobs:
   docker-image-windows:
