@@ -2,7 +2,7 @@
 
 > THE MOST POWERFUL SET OF TOOLS AVAILABLE TO CREATE YOUR WINDOWS INSTALLATION EXPERIENCE.
 
-… [as an Docker image](https://github.com/fabiang/docker-wix3) for Windows machines.
+… [as an Docker image](https://hub.docker.com/r/fabiang/wix3) for Windows machines.
 
 ## Available images
 

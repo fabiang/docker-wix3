@@ -2,6 +2,9 @@ name: Docker Image
 
 on:
   push:
+    paths-ignore:
+      - "README.md"
+      - "LICENSE"
   pull_request:
   schedule:
     - cron: "0 12 1-7 * 2"
@@ -95,7 +98,7 @@ jobs:
         if: "${{ github.ref == 'refs/heads/main' }}"
         run: |
           docker push '${{ env.IMAGE_NAME_FULL }}'
-          
+
       - name: Push Image Minor
         if: "${{ matrix.wix.version_minor != '' && github.ref == 'refs/heads/main' }}"
         run: |
@@ -105,5 +108,3 @@ jobs:
         if: "${{ matrix.wix.version_major != '' && github.ref == 'refs/heads/main' }}"
         run: |
           docker push '${{ env.IMAGE_NAME_MOJOR }}'
-
-
