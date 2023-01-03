@@ -34,14 +34,13 @@ SHELL ["cmd", "/S", "/C"]
 COPY --from=download ["C:/Program Files/Wix3", "C:/Program Files/Wix3"]
 
 USER ContainerAdministrator
-RUN setx PATH "%PATH%;C:\Program Files\Wix3" /m \
-    && setx WIX_TOOL_PATH "C:\Program Files\Wix3" /m
 
 RUN curl -SL --output vs_buildtools.exe https://aka.ms/vs/17/release/vs_buildtools.exe \
     \
     && (start /w vs_buildtools.exe --quiet --wait --norestart --nocache \
     --installPath "%ProgramFiles(x86)%\Microsoft Visual Studio\2022\BuildTools" \
     --add Microsoft.VisualStudio.Workload.AzureBuildTools \
+    --add Microsoft.Component.ClickOnce.MSBuild \
     --remove Microsoft.VisualStudio.Component.Windows10SDK.10240 \
     --remove Microsoft.VisualStudio.Component.Windows10SDK.10586 \
     --remove Microsoft.VisualStudio.Component.Windows10SDK.14393 \
@@ -49,6 +48,9 @@ RUN curl -SL --output vs_buildtools.exe https://aka.ms/vs/17/release/vs_buildtoo
     || IF "%ERRORLEVEL%"=="3010" EXIT 0) \
     \
     && del /q vs_buildtools.exe
+
+RUN setx PATH "%PATH%;C:\Program Files\Wix3;%ProgramFiles(x86)%\Microsoft SDKs\ClickOnce\SignTool" /m \
+    && setx WIX_TOOL_PATH "C:\Program Files\Wix3" /m
 
 RUN mkdir C:\App
 WORKDIR C:\\App
