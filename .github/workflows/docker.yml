@@ -51,7 +51,7 @@ jobs:
     steps:
       - uses: actions/checkout@v1
 
-      - uses: satackey/action-docker-layer-caching@v0.0.11
+      - uses: jpribyl/action-docker-layer-caching@v0.1.1
         continue-on-error: true
 
       - name: Build Image
@@ -86,6 +86,9 @@ jobs:
           docker run -t --rm --entrypoint='' `
             '${{ env.IMAGE_NAME_FULL }}' `
             melt -?
+          docker run -t --rm --entrypoint='' `
+            '${{ env.IMAGE_NAME_FULL }}' `
+            signtool /?
 
       - name: Docker Hub login
         if: "${{ github.ref == 'refs/heads/main' }}"
