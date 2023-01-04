@@ -33,7 +33,22 @@ SHELL ["cmd", "/S", "/C"]
 
 COPY --from=download ["C:/Program Files/Wix3", "C:/Program Files/Wix3"]
 
+ARG POWERSHELL_VERSION=7.2.8
+
 USER ContainerAdministrator
+
+RUN curl -SL --output PowerShell.msi https://github.com/PowerShell/PowerShell/releases/download/v%POWERSHELL_VERSION%/PowerShell-%POWERSHELL_VERSION%-win-x64.msi \
+    \
+    && (start /w msiexec.exe /package PowerShell.msi /quiet \
+    ADD_EXPLORER_CONTEXT_MENU_OPENPOWERSHELL=0 \
+    ADD_FILE_CONTEXT_MENU_RUNPOWERSHELL=0 \
+    ENABLE_PSREMOTING=0 \
+    REGISTER_MANIFEST=0 \
+    USE_MU=0 \
+    ENABLE_MU=0 \
+    ADD_PATH=1) \
+    \
+    && del /q PowerShell.msi
 
 RUN curl -SL --output vs_buildtools.exe https://aka.ms/vs/17/release/vs_buildtools.exe \
     \

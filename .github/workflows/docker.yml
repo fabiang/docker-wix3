@@ -51,8 +51,9 @@ jobs:
     steps:
       - uses: actions/checkout@v1
 
-      - uses: jpribyl/action-docker-layer-caching@v0.1.1
-        continue-on-error: true
+      # Githubs Cache with 10GB is to small
+      #      - uses: jpribyl/action-docker-layer-caching@v0.1.1
+      #        continue-on-error: true
 
       - name: Build Image
         run: |
