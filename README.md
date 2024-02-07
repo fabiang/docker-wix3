@@ -7,23 +7,8 @@
 ## Available images
 
 ### Windows
-#### ltsc2022
-```
-3.x (tags: 3-windowsservercore-ltsc2022)
-3.11 (tags: 3.11-windowsservercore-ltsc2022)
-3.11.x (tags: 3.11.2-windowsservercore-ltsc2022, 3.11.1-windowsservercore-ltsc2022)
-3.10 (tags: 3.10-windowsservercore-ltsc2022)
-3.10.x (tags: 3.10.4-windowsservercore-ltsc2022)
-```
 
-#### ltsc2019
-```
-3.x (tags: 3-windowsservercore-ltsc2019)
-3.11 (tags: 3.11-windowsservercore-ltsc2019)
-3.11.x (tags: 3.11.2-windowsservercore-ltsc2019, 3.11.1-windowsservercore-ltsc2019)
-3.10 (tags: 3.10-windowsservercore-ltsc2019)
-3.10.x (tags: 3.10.4-windowsservercore-ltsc2019)
-```
+See [Docker hub page for available tags](https://hub.docker.com/r/fabiang/wix3/tags?page=1&ordering=name).
 
 ## Usage
 
