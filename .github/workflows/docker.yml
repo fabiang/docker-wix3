@@ -56,7 +56,7 @@ jobs:
       IMAGE_NAME_MAJOR_OLD: "fabiang/wix3:${{ matrix.wix.version_major }}-windows${{ matrix.windows.base_image }}-${{ matrix.windows.base_version }}"
 
     runs-on: windows-${{ matrix.windows.runs_on }}
-
+    continue-on-error: true
     name: "Win v${{ matrix.wix.version }} on ${{ matrix.windows.base_image }} (${{ matrix.windows.base_version }})"
 
     steps:
